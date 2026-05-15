@@ -1,0 +1,31 @@
+{
+  "name": "mimoops-command-center",
+  "version": "0.1.0",
+  "private": false,
+  "description": "AI-native operations dashboard for monitoring, diagnosing, and recovering developer infrastructure with MiMo-powered reasoning.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "api": "node server.mjs",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "start:demo": "bash scripts/run-mimoops-demo.sh"
+  },
+  "keywords": [
+    "mimo",
+    "ai-ops",
+    "devops",
+    "monitoring",
+    "self-healing",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {}
+}
