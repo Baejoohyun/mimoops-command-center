@@ -16,11 +16,30 @@ const demoIncidents = [
   { time: '22:41:19', title: 'Service recovered', detail: 'Endpoint returned 200 OK. Incident summary prepared for the operator.' },
 ];
 
+const demoRunbooks = [
+  { command: 'mimoops recover 9router --verify', result: 'Restart + /v1/models probe passed', state: 'ready' },
+  { command: 'mimoops inspect logs --since 10m', result: '18 noisy lines compressed into 4 decisions', state: 'ready' },
+  { command: 'mimoops report --send telegram', result: 'Operator-ready incident brief queued', state: 'armed' },
+];
+
+const demoRisks = [
+  { label: 'Gateway drift', score: 12, copy: 'Process exists, endpoint healthy' },
+  { label: 'Router latency', score: 24, copy: 'Below recovery threshold' },
+  { label: 'Runtime pressure', score: 31, copy: 'Memory and disk inside safe band' },
+];
+
+const demoProof = [
+  'Live VPS telemetry API',
+  'Recovery timeline replay',
+  'MiMo operator brief',
+  'Safe runbook commands',
+];
+
 const capabilities = [
   'Live health checks for AI gateways, routers, cron jobs, and VPS resources',
   'MiMo-powered incident summaries that turn raw terminal logs into decisions',
   'Self-healing runbooks for common agent infrastructure failures',
-  'Operator dashboard designed for developers, builders, and high-intensity AI users',
+  'Operator dashboard designed for builders who run AI as infrastructure',
 ];
 
 function useLiveStatus() {
@@ -59,23 +78,30 @@ function App() {
   const { payload, mode } = useLiveStatus();
   const services = payload?.services || demoServices;
   const incidents = payload?.incidents || demoIncidents;
+  const runbooks = payload?.runbooks || demoRunbooks;
+  const risks = payload?.risks || demoRisks;
+  const proof = payload?.proof || demoProof;
   const generatedAt = useMemo(() => {
     if (!payload?.generatedAt) return 'demo snapshot';
     return new Date(payload.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }, [payload]);
+  const recoveryScore = payload?.recoveryScore || 93;
 
   return (
     <main>
       <section className="hero shell">
         <nav className="nav">
           <div className="brand"><span /> MiMoOps</div>
-          <a href="#dashboard">Live Demo</a>
+          <div className="navLinks">
+            <a href="#dashboard">Live Demo</a>
+            <a href="#proof">Proof</a>
+          </div>
         </nav>
 
         <div className="heroGrid">
           <div className="heroCopy">
             <p className="eyebrow">Built for Xiaomi MiMo Orbit builders</p>
-            <h1>AI-native command center for self-healing developer infrastructure.</h1>
+            <h1>Self-healing command center for AI developer infrastructure.</h1>
             <p className="lead">
               MiMoOps turns MiMo into an autonomous DevOps operator: monitoring AI gateways,
               explaining failures, executing recovery playbooks, and reporting what happened in plain language.
@@ -87,13 +113,14 @@ function App() {
             <div className="signalStrip" aria-label="Key metrics">
               <strong>{services.length}</strong><span>services watched</span>
               <strong>{mode === 'live' ? '15s' : '19s'}</strong><span>{mode === 'live' ? 'refresh loop' : 'demo recovery'}</span>
-              <strong>24/7</strong><span>agent loop</span>
+              <strong>{recoveryScore}%</strong><span>recovery confidence</span>
             </div>
           </div>
 
-          <div className="terminalCard" aria-label="MiMo incident summary preview">
-            <div className="terminalHeader"><span /> MiMo Incident Summary</div>
-            <pre>{`root@vps:~$ mimoops doctor
+          <div className="heroStack">
+            <div className="terminalCard" aria-label="MiMo incident summary preview">
+              <div className="terminalHeader"><span /> MiMo Incident Summary</div>
+              <pre>{`root@vps:~$ mimoops doctor
 
 mode: ${mode === 'live' ? 'live VPS telemetry' : 'demo simulation'}
 status: ${payload?.overall || 'degraded -> recovered'}
@@ -103,14 +130,25 @@ mimo: inspect services, explain risk,
 
 last_check: ${generatedAt}
 report: operator-ready summary generated`}</pre>
+            </div>
+            <div className="orbitCard">
+              <span>MiMo Orbit submission proof</span>
+              <strong>Working MVP + telemetry API + recovery UX</strong>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="shell dashboard" id="dashboard">
-        <div className="sectionTitle">
-          <p className="eyebrow">Product demo</p>
-          <h2>One screen for monitoring, diagnosis, and recovery.</h2>
+        <div className="sectionTitle splitTitle">
+          <div>
+            <p className="eyebrow">Product demo</p>
+            <h2>One screen for monitoring, diagnosis, and recovery.</h2>
+          </div>
+          <div className="scoreDial">
+            <strong>{recoveryScore}</strong>
+            <span>automation score</span>
+          </div>
         </div>
 
         <div className="dashboardPanel">
@@ -155,22 +193,45 @@ report: operator-ready summary generated`}</pre>
                   : 'The system recovered without human intervention. No token loss, no gateway restart, and no queued jobs were dropped. Suggested next action: pin 9router under a supervised process manager and keep the watchdog at 15 minutes.'}
               </p>
               <div className="commandBox">
-                <code>mimoops status --json</code>
-                <code>mimoops recover 9router --verify</code>
-                <code>mimoops report --send telegram</code>
+                {runbooks.map((runbook) => (
+                  <code key={runbook.command}>
+                    <b>{runbook.command}</b>
+                    <span>{runbook.result}</span>
+                  </code>
+                ))}
               </div>
             </div>
+          </div>
+
+          <div className="riskGrid" aria-label="Risk scores">
+            {risks.map((risk) => (
+              <article className="riskCard" key={risk.label}>
+                <div><strong>{risk.score}</strong><span>/100</span></div>
+                <p>{risk.label}</p>
+                <small>{risk.copy}</small>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="shell featureSection">
+      <section className="shell featureSection" id="proof">
         {capabilities.map((capability, index) => (
           <article className="feature" key={capability}>
             <span>0{index + 1}</span>
             <p>{capability}</p>
           </article>
         ))}
+      </section>
+
+      <section className="shell proofPanel">
+        <div>
+          <p className="eyebrow">Submission evidence</p>
+          <h2>Built to prove real usage, not just a static landing page.</h2>
+        </div>
+        <div className="proofList">
+          {proof.map((item) => <span key={item}>{item}</span>)}
+        </div>
       </section>
 
       <section className="shell architecture" id="architecture">
